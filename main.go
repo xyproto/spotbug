@@ -7,7 +7,9 @@ import (
 	"github.com/spf13/pflag"
 )
 
-const versionString = "DescribeImage 1.3.2"
+const versionString = "SpotBug 1.0.0"
+
+const defaultPrompt = "You are an expert software developer with a PhD in Computer Science. Say \"ALL IS WELL\" if you can not spot any bugs in the following code, or \"LGTM\" if you are even just a bit unsure."
 
 func main() {
 	var (
@@ -21,7 +23,7 @@ func main() {
 
 	pflag.BoolVarP(&verbose, "verbose", "V", false, "verbose output")
 	pflag.StringVarP(&model, "model", "m", "", "Specify the Ollama model to use")
-	pflag.StringVarP(&promptHeader, "prompt", "p", "Describe the following image(s):", "Provide a custom prompt header")
+	pflag.StringVarP(&promptHeader, "prompt", "p", defaultPrompt, "Provide a custom prompt header")
 	pflag.StringVarP(&outputFile, "output", "o", "", "Specify an output file")
 	pflag.IntVarP(&wrapWidth, "wrap", "w", 0, "Word wrap at specified width. Use '-1' for terminal width")
 	pflag.BoolVarP(&showVersion, "version", "v", false, "display version")
@@ -35,7 +37,7 @@ func main() {
 
 	filenames := pflag.Args()
 
-	output, err := describeImages(promptHeader, model, outputFile, wrapWidth, filenames, verbose)
+	output, err := spotBugs(promptHeader, model, outputFile, wrapWidth, filenames, verbose)
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)

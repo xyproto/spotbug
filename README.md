@@ -1,8 +1,8 @@
-# DescribeImage
+# SpotBug
 
-Use LLMs that are running locally (or on a server defined in `OLLAMA_HOST`) to describe the given images.
+Use LLMs that are running locally (or on a server defined in `OLLAMA_HOST`) to find bugs in the given source code files.
 
-This repository contains a command line utility that can be used to describe images with Ollama.
+This repository contains a command line utility that can be used to find bugs in source code with Ollama.
 
 ## Requirements
 
@@ -17,32 +17,20 @@ This repository contains a command line utility that can be used to describe ima
 
 ## Installation
 
-    go install github.com/xyproto/describeimage@latest
+    go install github.com/xyproto/spotbug@latest
 
 The executable ends up in `~/go/bin` unless Go has been configured to place it somewhere else.
 
 ## Example use
 
 ```sh
-describeimage puppy.png
+spotbug main.go
 ```
 
-<img align="right" width="150" height="150" alt="Puppy" src="img/puppy.png">
-
-> The image shows a cute puppy sitting on the sidewalk in what appears to be an urban setting. The puppy is looking directly at the camera with its tongue out, giving a playful and happy expression. It has a fluffy coat of light brown fur. In the background, there's a cityscape with tall buildings, street lamps, and a clear sky. The lighting suggests it might be late afternoon or early evening, as indicated by the warm glow on the buildings. There are no visible texts in the image.
-
-```sh
-describeimage meloncat.jpg
-```
-
-<img align="right" width="150" height="150" alt="Melon Cat" src="img/meloncat.jpg">
-
-> The image shows a cat with a humorous and unusual appearance. The cat's head is covered by a large, green watermelon slice that has been cut to fit snugly over its head. The cat's eyes are visible through the watermelon, and it appears to be looking directly at the camera with a somewhat disgruntled or unimpressed expression. The background is simple and does not distract from the cat and its watermelon headpiece.
-
-(note that it's really a lime)
+> LGTM
 
 ## General info
 
-* Version: 1.3.2
+* Version: 1.0.0
 * License: BSD-3
 * Author: Alexander F. Rødseth &lt;xyproto@archlinux.org&gt;

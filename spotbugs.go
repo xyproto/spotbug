@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -10,41 +11,42 @@ import (
 	"github.com/xyproto/wordwrap"
 )
 
-// describeImages uses Ollama and the given model to describe one or more images.
-// prompt is the start of the multimodal prompt: the instructions which will be followed by one or more images
+// spotBugs uses Ollama and the given model to try to find bugs in one or more source code files
+// prompt is the start of the multimodal prompt: the instructions which will be followed by the source code
 // outputFile is an (optional) filename to write the resulting description to
 // writeWidth is the width that the returned or written string should be wrapped to, if it is >0
-// filenames is a list of input images
-// A description is returned as a string.
-func describeImages(prompt, model, outputFile string, wrapWidth int, filenames []string, verbose bool) (string, error) {
+// filenames is a list of input source code files
+// The result is returned as a string.
+func spotBugs(prompt, model, outputFile string, wrapWidth int, filenames []string, verbose bool) (string, error) {
+	if prompt == "" {
+		return "", errors.New("the given prompt can not be empty")
+	}
+
 	if wrapWidth == -1 {
 		wrapWidth = getTerminalWidth()
 	}
 
 	if len(filenames) < 1 {
-		return "", fmt.Errorf("no image filenames provided")
+		return "", fmt.Errorf("no source code filenames provided")
 	}
 
-	var images []string
+	var sourceCode []string
 	for _, filename := range filenames {
 		logVerbose(verbose, "[%s] Reading... ", filename)
-		base64image, err := ollamaclient.Base64EncodeFile(filename)
+		data, err := os.ReadFile(filename)
 		if err == nil { // success
-			images = append(images, base64image)
+			sourceCode = append(sourceCode, string(data))
 			logVerbose(verbose, "OK\n")
 		} else {
 			logVerbose(verbose, "FAILED: "+err.Error()+"\n")
 		}
 	}
 
-	if len(images) == 0 {
-		return "", fmt.Errorf("no images to describe")
-	}
-	if prompt == "" {
-		prompt = "Describe the following image(s):"
+	if len(sourceCode) == 0 {
+		return "", fmt.Errorf("no source code to analyze")
 	}
 	if model == "" {
-		model = usermodel.GetVisionModel() // get the llm-manager defined model for the "vision" task, perhaps "llava"
+		model = usermodel.GetCodeModel() // get the llm-manager defined model for the "vision" task, perhaps "llava"
 	}
 
 	oc := ollamaclient.New()
@@ -59,17 +61,17 @@ func describeImages(prompt, model, outputFile string, wrapWidth int, filenames [
 
 	oc.SetReproducible()
 
-	promptAndImages := append([]string{prompt}, images...)
+	promptAndSourceCode := append([]string{prompt}, sourceCode...)
 
 	logVerbose(verbose, "[%s] Analyzing...\n", oc.ModelName)
-	output, err := oc.GetOutput(promptAndImages...)
+	output, err := oc.GetOutput(promptAndSourceCode...)
 	if err != nil {
 		return "", fmt.Errorf("error: %v", err)
 	}
 	logVerbose(verbose, "[%s] Analysis complete.\n", oc.ModelName)
 
 	if output == "" {
-		return "", fmt.Errorf("generated output for the prompt %s is empty", prompt)
+		return "", errors.New("generated output is empty")
 	}
 
 	if wrapWidth > 0 {
