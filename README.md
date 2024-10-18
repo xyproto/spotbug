@@ -4,6 +4,8 @@ Use LLMs that are running locally (or on a server defined in `OLLAMA_HOST`) to f
 
 This repository contains a command line utility that can be used to find bugs in source code with Ollama.
 
+### NOTE: This utility is a bit experimental, and a work in progress.
+
 ## Requirements
 
 ### Run-time requirements
